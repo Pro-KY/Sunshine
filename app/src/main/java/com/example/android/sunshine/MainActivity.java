@@ -17,12 +17,38 @@ package com.example.android.sunshine;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 
 public class MainActivity extends AppCompatActivity {
+
+    private TextView mWeatherTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
+
+        mWeatherTextView = (TextView) findViewById(R.id.tv_weather_data);
+
+        String[] dummyWeatherData = {
+                "Monday - 18/6",
+                "Tuesday - 16/2",
+                "Wednesday - 14/2",
+                "Thursday - 13/2",
+                "Friday - 11/5",
+                "Saturday - 8/1",
+                "Sunday - 5/1",
+                "Monday - 15/5",
+                "Tuesday - 14/6",
+                "Wednesday - 21/8",
+                "Thursday - 35/9",
+                "Friday - 20/2",
+                "Saturday - 5/6",
+                "Sunday - 4/1"
+        };
+
+        for(String dayForecast : dummyWeatherData) {
+            mWeatherTextView.append(dayForecast + "\n\n");
+        }
     }
 }
