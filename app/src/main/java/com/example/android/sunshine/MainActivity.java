@@ -15,9 +15,15 @@
  */
 package com.example.android.sunshine;
 
+import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
+
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -29,26 +35,46 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_forecast);
 
         mWeatherTextView = (TextView) findViewById(R.id.tv_weather_data);
+    }
 
-        String[] dummyWeatherData = {
-                "Monday - 18/6",
-                "Tuesday - 16/2",
-                "Wednesday - 14/2",
-                "Thursday - 13/2",
-                "Friday - 11/5",
-                "Saturday - 8/1",
-                "Sunday - 5/1",
-                "Monday - 15/5",
-                "Tuesday - 14/6",
-                "Wednesday - 21/8",
-                "Thursday - 35/9",
-                "Friday - 20/2",
-                "Saturday - 5/6",
-                "Sunday - 4/1"
-        };
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
 
-        for(String dayForecast : dummyWeatherData) {
-            mWeatherTextView.append(dayForecast + "\n\n");
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_settings) {
+            Intent settingsIntent = new Intent(this, SettingsActivity.class);
+            startActivity(settingsIntent);
+            return true;
         }
+        return super.onOptionsItemSelected(item);
+    }
+
+    // class for performing network requests
+    private class WeatherForecastAsyncTask extends AsyncTask<URL, Void, String> {
+
+        @Override
+        protected String doInBackground(URL... params) {
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+        }
+    }
+
+    // get the user's preferred location and execute AsyncTask for requesting data from the server
+    private void loadWeatherData() {
+
     }
 }

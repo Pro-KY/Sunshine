@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- arrays for LOCATION preferences -->
+    <string-array name="pref_location_entries">
+        <item> @string/pref_location_dubr_entry  </item>  <!-- Dubrovytsya -->
+        <item> @string/pref_location_rivne_entry </item>  <!-- Rivne -->
+        <item> @string/pref_location_kiev_entry  </item>  <!-- Kiev -->
+    </string-array>
+
+    <string-array name="pref_location_entry_values">
+        <item> @string/pref_location_dubr_value  </item>  <!-- 709493 -->
+        <item> @string/pref_location_rivne_value </item>  <!-- 7046809 -->
+        <item> @string/pref_location_kiev_value  </item>  <!-- 703448 -->
+    </string-array>
+
+
+    <!-- arrays for UNITS preferences -->
+    <string-array name="pref_units_entries">
+        <item> @string/pref_units_celsius_entry  </item>    <!-- Celsius -->
+        <item> @string/pref_units_fahrenheit_entry </item>  <!-- Fahrenheit -->
+    </string-array>
+
+    <string-array name="pref_units_entry_values">
+        <item> @string/pref_units_celsius_value  </item>    <!-- metric -->
+        <item> @string/pref_units_fahrenheit_value </item>  <!-- imperial -->
+    </string-array>
+</resources>
