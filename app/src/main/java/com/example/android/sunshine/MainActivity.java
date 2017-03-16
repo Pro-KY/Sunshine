@@ -25,6 +25,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.sunshine.utilities.NetworkUtils;
@@ -36,7 +37,9 @@ public class MainActivity extends AppCompatActivity {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private TextView mUrlTextView;
-    private TextView mResultTextView;
+    private TextView mResultsTextView;
+    private TextView mErrorMessageTextView;
+    private ProgressBar mLoadingIndicator;
 
     private String mUrl;
 
@@ -47,7 +50,9 @@ public class MainActivity extends AppCompatActivity {
 
         Button mMakeRequestButton = (Button) findViewById(R.id.search_button);
         mUrlTextView = (TextView) findViewById(R.id.tv_url);
-        mResultTextView = (TextView) findViewById(R.id.tv_result_query);
+        mResultsTextView = (TextView) findViewById(R.id.tv_result_query);
+        mErrorMessageTextView = (TextView) findViewById(R.id.tv_error_message);
+        mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 
         // set click listener to the mMakeRequestButton
         mMakeRequestButton.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +84,6 @@ public class MainActivity extends AppCompatActivity {
     // class for performing network requests
     private class WeatherForecastAsyncTask extends AsyncTask<Void, Void, String> {
 
-
         @Override
         protected String doInBackground(Void... params) {
             return loadWeatherData();
@@ -87,13 +91,25 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            super.onPreExecute();
+            mLoadingIndicator.setVisibility(View.VISIBLE);
         }
 
         @Override
         protected void onPostExecute(String requestResult) {
-            // display result in the mResultTextView
-            mResultTextView.setText(requestResult);
+
+            // As soon as the loading is complete, hide the loading indicator
+            mLoadingIndicator.setVisibility(View.INVISIBLE);
+
+            if(requestResult != null && !requestResult.equals("")) {
+                showJsonDataView();
+                // display result in the mResultTextView
+                mResultsTextView.setText(requestResult);
+            } else {
+                // display an error message
+                showErrorMessage();
+                mErrorMessageTextView.setText(R.string.error_message);
+            }
+
             // display url in the mUrlTextView
             mUrlTextView.setText(mUrl);
         }
@@ -122,5 +138,17 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         return null;
+    }
+
+    // COMPLETED (14) Create a method called showJsonDataView to show the data and hide the error
+    private void showJsonDataView() {
+        mErrorMessageTextView.setVisibility(View.INVISIBLE);
+        mResultsTextView.setVisibility(View.VISIBLE);
+    }
+
+    // COMPLETED (15) Create a method called showErrorMessage to show the error and hide the data
+    private void showErrorMessage() {
+        mResultsTextView.setVisibility(View.INVISIBLE);
+        mErrorMessageTextView.setVisibility(View.VISIBLE);
     }
 }

@@ -12,6 +12,11 @@
     <string name="settings_activity_title"> Settings </string>
 
     <!-- - - - - - - - - - - - - -->
+    <!--Used by MainActivity-->
+    <string name="error_message"> An error has occurred!  </string>
+    <!-- - - - - - - - - - - - - -->
+
+    <!-- - - - - - - - - - - - - -->
     <!--Used by SunshineDateUtils-->
     <!-- - - - - - - - - - - - - -->
 
