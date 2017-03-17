@@ -5,41 +5,14 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:id="@+id/search_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="8dp"
-        android:text="MAKE REQUEST">
-    </Button>
-
-    <TextView
-        android:id="@+id/tv_url"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:layout_marginLeft="8dp"
-        android:text="Click search and your URL will show up here!"
-        android:textSize="20sp" />
-
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerview_forecast"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp">
-
-            <TextView
-                android:id="@+id/tv_result_query"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:textSize="20sp"
-                android:text="query result show up here"/>
-        </ScrollView>
+            android:layout_height="match_parent"/>
 
         <TextView
             android:id="@+id/tv_error_message"
@@ -47,8 +20,8 @@
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:text="@string/error_message"
-            android:textSize="22sp"
-            android:visibility="invisible"/>
+            android:textSize="20sp"
+            android:visibility="invisible" />
 
         <ProgressBar
             android:id="@+id/pb_loading_indicator"

@@ -62,7 +62,7 @@ public final class OpenWeatherJsonUtils {
         final String OWM_MESSAGE_CODE = "cod";
 
         /* String array to hold each day's weather String */
-        String[] parsedWeatherData = null;
+        String[] parsedWeatherData;
 
         JSONObject forecastJson = new JSONObject(forecastJsonStr);
 
