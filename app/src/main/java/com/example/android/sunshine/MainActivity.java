@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
@@ -25,7 +26,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.jar.JarException;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements ForecastAdapter.ListItemClickListener {
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         mRecyclerView.setHasFixedSize(true);
 
-        mForecastAdapter = new ForecastAdapter();
+        mForecastAdapter = new ForecastAdapter(this);
         mRecyclerView.setAdapter(mForecastAdapter);
     }
 
@@ -76,6 +77,12 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public void onListItemClick(String viewHolderData) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("dayForecast", viewHolderData);
+        startActivity(intent);
+    }
 
     // class for performing network requests
     private class WeatherForecastAsyncTask extends AsyncTask<Void, Void, String[]> {
@@ -100,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("weatherData", dayforecast);
             }
 
-            if(weatherData != null && weatherData.length != 0) {
+            if(weatherData.length != 0) {
                 showJsonDataView();
                 // set weather data to ForecastAdapter data source and display it via RecyclerView
                 mForecastAdapter.setWeatherData(weatherData);

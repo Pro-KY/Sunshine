@@ -1,7 +1,9 @@
 package com.example.android.sunshine;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +11,15 @@ import android.widget.TextView;
 
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder>{
     private String[] mWeatherData;
+    final private ListItemClickListener mOnClickListener;
 
-    public ForecastAdapter() {}
+    public ForecastAdapter(ListItemClickListener listener) {
+        mOnClickListener = listener;
+    }
+
+    public interface ListItemClickListener {
+        void onListItemClick(String viewHolderData);
+    }
 
     @Override
     public ForecastAdapterViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -41,16 +50,25 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         notifyDataSetChanged();
     }
 
-    public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder {
-        public final TextView mWeatherTextView;
+    public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
+        TextView mWeatherTextView;
 
         ForecastAdapterViewHolder(View itemView) {
             super(itemView);
-            mWeatherTextView = (TextView) itemView.findViewById(R.id.tv_weather_data);
+            mWeatherTextView = (TextView) itemView.findViewById(R.id.tv_item_forecast);
+            itemView.setOnClickListener(this);
         }
 
         void bind(int listIndex) {
             mWeatherTextView.setText(mWeatherData[listIndex]);
+        }
+
+        @Override
+        public void onClick(View v) {
+            int clickedPosition = getAdapterPosition();
+            Log.d("clickedPosition", String.valueOf(clickedPosition));
+            String dayForecast = mWeatherData[clickedPosition];
+            mOnClickListener.onListItemClick(dayForecast);
         }
     }
 }
