@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.AsyncTaskLoader;
+import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -27,7 +30,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.jar.JarException;
 
-public class MainActivity extends AppCompatActivity implements ForecastAdapter.ListItemClickListener {
+public class MainActivity extends AppCompatActivity implements
+        ForecastAdapter.ListItemClickListener,
+        LoaderManager.LoaderCallbacks<String[]>{
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
@@ -35,11 +40,18 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapter.L
     private ProgressBar mLoadingIndicator;
     private ForecastAdapter mForecastAdapter;
 
+    // loader ID
+    private final static int LOADER_ID = 1;
+
     @Override
     protected void onStart() {
         super.onStart();
-        // load data from the server and display on the screen
-        new WeatherForecastAsyncTask().execute();
+
+        // whenever the loaderManager has something to notify us of, it will do so through this callback.
+        LoaderManager.LoaderCallbacks<String[]> callback = MainActivity.this;
+
+        // Initialize the loader, load data from the server and display on the screen
+        getSupportLoaderManager().initLoader(LOADER_ID, null, callback);
     }
 
     @Override
@@ -91,40 +103,63 @@ public class MainActivity extends AppCompatActivity implements ForecastAdapter.L
         startActivity(intent);
     }
 
-    // class for performing network requests
-    private class WeatherForecastAsyncTask extends AsyncTask<Void, Void, String[]> {
+    @Override
+    public Loader<String[]> onCreateLoader(int id, final Bundle args) {
+        Log.d("onCreateLoader", "launched");
+        return new AsyncTaskLoader<String[]>(this) {
 
-        @Override
-        protected String[] doInBackground(Void... params) {
-            return loadWeatherData();
-        }
+            // hold and cache our weather data
+            String[] weatherDataJson;
 
-        @Override
-        protected void onPreExecute() {
-            mLoadingIndicator.setVisibility(View.VISIBLE);
-        }
+            @Override
+            protected void onStartLoading() {
+                Log.d("onStartLoading", "launched");
 
-        @Override
-        protected void onPostExecute(String[] weatherData) {
+                mLoadingIndicator.setVisibility(View.VISIBLE);
 
-            // As soon as the loading is complete, hide the loading indicator
-            mLoadingIndicator.setVisibility(View.INVISIBLE);
-
-            for(String dayforecast : weatherData) {
-                Log.d("weatherData", dayforecast);
+                // preventing queries just because the user navigated away from the app.
+                if(weatherDataJson != null) {
+                    deliverResult(weatherDataJson);
+                } else {
+                    forceLoad();
+                }
             }
 
-            if(weatherData.length != 0) {
-                showJsonDataView();
-                // set weather data to ForecastAdapter data source and display it via RecyclerView
-                mForecastAdapter.setWeatherData(weatherData);
-            } else {
-                // display an error message
-                showErrorMessage();
-                mErrorMessageTextView.setText(R.string.error_message);
+            @Override
+            public String[] loadInBackground() {
+                Log.d("loadInBackground", "launched");
+                return loadWeatherData();
             }
+
+            @Override
+            public void deliverResult(String[] data) {
+                Log.d("deliverResult", "launched");
+                weatherDataJson = data;
+                super.deliverResult(data);
+            }
+        };
+    }
+
+    @Override
+    public void onLoadFinished(Loader<String[]> loader, String[] data) {
+        Log.d("onLoadFinished", "launched");
+        Log.d("arrayLength", String.valueOf(data.length));
+        // As soon as the loading is complete, hide the loading indicator
+        mLoadingIndicator.setVisibility(View.INVISIBLE);
+
+        if(data.length != 0) {
+            showJsonDataView();
+            // set weather data to ForecastAdapter data source and display it via RecyclerView
+            mForecastAdapter.setWeatherData(data);
+        } else {
+            // display an error message
+            showErrorMessage();
+            mErrorMessageTextView.setText(R.string.error_message);
         }
     }
+
+    @Override
+    public void onLoaderReset(Loader<String[]> loader) {}
 
     // get the user's preferred location and temperature units to execute AsyncTask for
     // requesting data from the server, return response as a json string
