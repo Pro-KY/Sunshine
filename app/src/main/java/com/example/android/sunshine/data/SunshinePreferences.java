@@ -16,8 +16,25 @@
 package com.example.android.sunshine.data;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceActivity;
+import android.preference.PreferenceFragment;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceFragmentCompat;
+import android.support.v7.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceScreen;
+import android.util.Log;
 
-public class SunshinePreferences {
+import com.example.android.sunshine.R;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
+import static java.util.Arrays.asList;
+
+public class SunshinePreferences extends Preference{
 
     /*
      * Human readable location string, provided by the API.  Because for styling,
@@ -36,11 +53,14 @@ public class SunshinePreferences {
      * Before you implement methods to return your REAL preference for location,
      * we provide some default values to work with.
      */
-    private static final String DEFAULT_WEATHER_LOCATION = "94043,USA";
+    private static final String DEFAULT_WEATHER_LOCATION = "709493";
     private static final double[] DEFAULT_WEATHER_COORDINATES = {37.4284, 122.0724};
 
-    private static final String DEFAULT_MAP_LOCATION =
-            "1600 Amphitheatre Parkway, Mountain View, CA 94043";
+    private static final String DEFAULT_MAP_LOCATION = "Dubrovytsya";
+
+    public SunshinePreferences(Context context) {
+        super(context);
+    }
 
     /**
      * Helper method to handle setting location details in Preferences (City Name, Latitude,
@@ -78,17 +98,36 @@ public class SunshinePreferences {
     }
 
     /**
-     * Returns the location currently set in Preferences. The default location this method
-     * will return is "94043,USA", which is Mountain View, California. Mountain View is the
-     * home of the headquarters of the Googleplex!
+     * Returns the location currently set in Preferences.
      *
      * @param context Context used to get the SharedPreferences
      * @return Location The current user has set in SharedPreferences. Will default to
      * "94043,USA" if SharedPreferences have not been implemented yet.
      */
     public static String getPreferredWeatherLocation(Context context) {
-        /** This will be implemented in a future lesson **/
-        return getDefaultWeatherLocation();
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String prefLocationKey = context.getString(R.string.pref_location_key);
+        String defaultLocation = context.getString(R.string.pref_location_default);
+        return prefs.getString(prefLocationKey, defaultLocation);
+    }
+
+    public static String getPreferredTemperatureUnits(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String prefUnitsKey = context.getString(R.string.pref_temperature_units_key);
+        String defaultUnits = context.getString(R.string.pref_temperature_units_default);
+
+        return prefs.getString(prefUnitsKey, defaultUnits);
+    }
+
+    public static String getCityName(Context context) {
+
+        String locationPrefValue = getPreferredWeatherLocation(context);
+        String[] arrayValues = context.getResources().getStringArray(R.array.pref_location_entry_values);
+        int locationPrefIndex = Arrays.asList(arrayValues).indexOf(locationPrefValue);
+
+        String[] arrayEntries = context.getResources().getStringArray(R.array.pref_location_entries);
+
+        return arrayEntries[locationPrefIndex];
     }
 
     /**
@@ -98,8 +137,13 @@ public class SunshinePreferences {
      * @return true If metric display should be used
      */
     public static boolean isMetric(Context context) {
-        /** This will be implemented in a future lesson **/
-        return true;
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String prefUnitsKey = context.getString(R.string.pref_temperature_units_key);
+        String defaultUnits = context.getString(R.string.pref_location_default);
+        String metricValue = context.getString(R.string.pref_units_celsius_value);
+        String currentUnits = prefs.getString(prefUnitsKey, defaultUnits);
+
+        return (currentUnits.equals(metricValue));
     }
 
     /**

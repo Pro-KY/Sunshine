@@ -1,26 +1,27 @@
 package com.example.android.sunshine;
 
-import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.ListPreference;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
+
+import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
 
@@ -28,11 +29,13 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.jar.JarException;
+
 
 public class MainActivity extends AppCompatActivity implements
         ForecastAdapter.ListItemClickListener,
-        LoaderManager.LoaderCallbacks<String[]>{
+        LoaderManager.LoaderCallbacks<String[]>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
+
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     private RecyclerView mRecyclerView;
@@ -40,18 +43,23 @@ public class MainActivity extends AppCompatActivity implements
     private ProgressBar mLoadingIndicator;
     private ForecastAdapter mForecastAdapter;
 
+    // flag for preference updates, indicates whether preferences have been updated
+    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
+
     // loader ID
     private final static int LOADER_ID = 1;
+
 
     @Override
     protected void onStart() {
         super.onStart();
 
-        // whenever the loaderManager has something to notify us of, it will do so through this callback.
-        LoaderManager.LoaderCallbacks<String[]> callback = MainActivity.this;
-
-        // Initialize the loader, load data from the server and display on the screen
-        getSupportLoaderManager().initLoader(LOADER_ID, null, callback);
+        // check whether preferences have been updated
+        if(PREFERENCES_HAVE_BEEN_UPDATED) {
+            Log.d(LOG_TAG, "onStart: preferences were updated");
+            getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+            PREFERENCES_HAVE_BEEN_UPDATED = false;
+        }
     }
 
     @Override
@@ -70,14 +78,31 @@ public class MainActivity extends AppCompatActivity implements
 
         mForecastAdapter = new ForecastAdapter(this);
         mRecyclerView.setAdapter(mForecastAdapter);
+
+        LoaderManager.LoaderCallbacks<String[]> callback = MainActivity.this;
+        // initialize the loader when activity is created
+        getSupportLoaderManager().initLoader(LOADER_ID, null, callback);
+
+        // Register MainActivity as an OnPreferenceChangedListener to receive a callback when a
+        // SharedPreference has changed
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Unregister MainActivity as an OnPreferenceChangedListener to avoid any memory leaks.
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -91,7 +116,10 @@ public class MainActivity extends AppCompatActivity implements
             case R.id.action_map:
                 openLocationMap();
                 return true;
-
+            case R.id.action_refresh:
+                getSupportLoaderManager().restartLoader(LOADER_ID, null, this);
+                Log.d("restartLoader", "load new data");
+                return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -135,6 +163,7 @@ public class MainActivity extends AppCompatActivity implements
             public void deliverResult(String[] data) {
                 Log.d("deliverResult", "launched");
                 weatherDataJson = data;
+                mLoadingIndicator.setVisibility(View.INVISIBLE);
                 super.deliverResult(data);
             }
         };
@@ -166,11 +195,11 @@ public class MainActivity extends AppCompatActivity implements
     private String[] loadWeatherData() {
 
         // location from the preferences
-        String locationParameter = NetworkUtils.getPreferredLocation(MainActivity.this);
+        String locationParameter = SunshinePreferences.getPreferredWeatherLocation(this);
         Log.d("locationParameter", locationParameter);
 
         // temperature units from the preferences
-        String unitsParameter = NetworkUtils.getPreferredTempUnits(MainActivity.this);
+        String unitsParameter = SunshinePreferences.getPreferredTemperatureUnits(this);
         Log.d("unitsParameter", unitsParameter);
 
         // build url for the forecast request
@@ -204,7 +233,7 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     private void openLocationMap() {
-        String addressString = "1600 Ampitheatre Parkway, CA";
+        String addressString = SunshinePreferences.getCityName(this);
         Uri geoLocation = Uri.parse("geo:0,0?q=" + addressString);
 
         Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -218,5 +247,10 @@ public class MainActivity extends AppCompatActivity implements
         }
     }
 
-
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        // Set this flag to true so that when control returns to MainActivity, it can refresh the
+        // data.
+        PREFERENCES_HAVE_BEEN_UPDATED = true;
+    }
 }

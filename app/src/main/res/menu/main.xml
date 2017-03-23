@@ -6,6 +6,12 @@
     tools:context="com.example.android.sunshine.MainActivity">
 
     <item
+        android:id="@+id/action_refresh"
+        android:orderInCategory="1"
+        android:title="@string/action_refresh"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/action_settings"
         android:title="@string/settings_menu_item"
         android:orderInCategory="1"
