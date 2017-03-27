@@ -1,5 +1,6 @@
 package com.example.android.sunshine;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -37,6 +38,7 @@ public class MainActivity extends AppCompatActivity implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private Context mContext = MainActivity.this;
 
     private RecyclerView mRecyclerView;
     private TextView mErrorMessageTextView;
@@ -76,7 +78,7 @@ public class MainActivity extends AppCompatActivity implements
 
         mRecyclerView.setHasFixedSize(true);
 
-        mForecastAdapter = new ForecastAdapter(this);
+        mForecastAdapter = new ForecastAdapter(this, mContext);
         mRecyclerView.setAdapter(mForecastAdapter);
 
         LoaderManager.LoaderCallbacks<String[]> callback = MainActivity.this;
@@ -220,13 +222,13 @@ public class MainActivity extends AppCompatActivity implements
         return null;
     }
 
-    // COMPLETED (14) Create a method called showJsonDataView to show the data and hide the error
+    // show the data and hide the error
     private void showJsonDataView() {
         mErrorMessageTextView.setVisibility(View.INVISIBLE);
         mRecyclerView.setVisibility(View.VISIBLE);
     }
 
-    // COMPLETED (15) Create a method called showErrorMessage to show the error and hide the data
+    // show the error and hide the data
     private void showErrorMessage() {
         mRecyclerView.setVisibility(View.INVISIBLE);
         mErrorMessageTextView.setVisibility(View.VISIBLE);

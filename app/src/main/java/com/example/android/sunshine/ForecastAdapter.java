@@ -2,6 +2,7 @@ package com.example.android.sunshine;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,12 +10,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.example.android.sunshine.data.WeatherContract;
+import com.example.android.sunshine.data.WeatherContract.WeatherEntry;
+import com.example.android.sunshine.utilities.SunshineDateUtils;
+import com.example.android.sunshine.utilities.SunshineWeatherUtils;
+
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder>{
-    private String[] mWeatherData;
+    private Cursor mCursor;
+    private Context mContext;
     final private ListItemClickListener mOnClickListener;
 
-    public ForecastAdapter(ListItemClickListener listener) {
+    public ForecastAdapter(ListItemClickListener listener, Context context) {
         mOnClickListener = listener;
+        mContext = context;
     }
 
     public interface ListItemClickListener {
@@ -32,6 +40,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         return new ForecastAdapterViewHolder(view);
     }
 
+    // takes all of the data from a cursor and uses that to populate the views
     @Override
     public void onBindViewHolder(ForecastAdapterViewHolder holder, int position) {
         holder.bind(position);
@@ -39,14 +48,22 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
     @Override
     public int getItemCount() {
-        if(mWeatherData != null) {
-            return mWeatherData.length;
+        if(mCursor != null) {
+            return mCursor.getCount();
         }
         return 0;
     }
 
+    /*
     void setWeatherData(String[] weatherData) {
         mWeatherData = weatherData;
+        notifyDataSetChanged();
+    }
+    */
+
+    void swapCursor(Cursor newCursor) {
+        mCursor = newCursor;
+        //After the new Cursor is set, call notifyDataSetChanged
         notifyDataSetChanged();
     }
 
@@ -60,13 +77,33 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         }
 
         void bind(int listIndex) {
-            mWeatherTextView.setText(mWeatherData[listIndex]);
+            mCursor.moveToPosition(listIndex);
+
+            // extract all the relevant data from the Cursor and display it
+            int dateColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_DATE);
+            long dateInMillis = mCursor.getLong(dateColIndex);
+            String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+
+            int descColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_WEATHER_ID);
+            int weatherId = mCursor.getInt(descColIndex);
+            String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
+
+            int minTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP);
+            double lowInCelsius = mCursor.getDouble(minTempColIndex);
+
+            int maxTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP);
+            double highInCelsius = mCursor.getDouble(maxTempColIndex);
+
+            String highAndLowTemperature = SunshineWeatherUtils.formatHighLows(mContext, highInCelsius, lowInCelsius);
+
+            String weatherSummary = dateString + " - " + description + " - " + highAndLowTemperature;
+
+            mWeatherTextView.setText(weatherSummary);
         }
 
         @Override
         public void onClick(View v) {
             int clickedPosition = getAdapterPosition();
-            Log.d("clickedPosition", String.valueOf(clickedPosition));
             String dayForecast = mWeatherData[clickedPosition];
             mOnClickListener.onListItemClick(dayForecast);
         }
