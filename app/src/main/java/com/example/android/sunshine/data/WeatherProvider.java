@@ -1,6 +1,5 @@
 package com.example.android.sunshine.data;
 
-
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;

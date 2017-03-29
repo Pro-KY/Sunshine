@@ -1,15 +1,16 @@
 package com.example.android.sunshine;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -23,6 +24,7 @@ import android.widget.TextView;
 
 
 import com.example.android.sunshine.data.SunshinePreferences;
+import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
 
@@ -34,7 +36,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements
         ForecastAdapter.ListItemClickListener,
-        LoaderManager.LoaderCallbacks<String[]>,
+        LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
@@ -50,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements
 
     // loader ID
     private final static int LOADER_ID = 1;
-
 
     @Override
     protected void onStart() {
@@ -81,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements
         mForecastAdapter = new ForecastAdapter(this, mContext);
         mRecyclerView.setAdapter(mForecastAdapter);
 
-        LoaderManager.LoaderCallbacks<String[]> callback = MainActivity.this;
+        LoaderManager.LoaderCallbacks<Cursor> callback = MainActivity.this;
         // initialize the loader when activity is created
         getSupportLoaderManager().initLoader(LOADER_ID, null, callback);
 
@@ -104,7 +105,6 @@ public class MainActivity extends AppCompatActivity implements
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -134,12 +134,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public Loader<String[]> onCreateLoader(int id, final Bundle args) {
+    public Loader<Cursor> onCreateLoader(int id, final Bundle args) {
         Log.d("onCreateLoader", "launched");
-        return new AsyncTaskLoader<String[]>(this) {
+        return new AsyncTaskLoader<Cursor>(this) {
 
             // hold and cache our weather data
-            String[] weatherDataJson;
+            Cursor cursorWeatherData;
 
             @Override
             protected void onStartLoading() {
@@ -148,23 +148,37 @@ public class MainActivity extends AppCompatActivity implements
                 mLoadingIndicator.setVisibility(View.VISIBLE);
 
                 // preventing queries just because the user navigated away from the app.
-                if(weatherDataJson != null) {
-                    deliverResult(weatherDataJson);
+                if(cursorWeatherData != null) {
+                    deliverResult(cursorWeatherData);
                 } else {
                     forceLoad();
                 }
             }
 
             @Override
-            public String[] loadInBackground() {
+            public Cursor loadInBackground() {
                 Log.d("loadInBackground", "launched");
-                return loadWeatherData();
+                ContentValues[] weatherData = loadWeatherData();
+
+                Uri uri = WeatherContract.WeatherEntry.CONTENT_URI_DIR;
+                int rowsInserted = 0;
+
+                if(weatherData != null) {
+                    rowsInserted = getContentResolver().bulkInsert(uri, weatherData);
+                    Log.d("rowsInserted", String.valueOf(rowsInserted));
+                }
+
+                if(rowsInserted != 0) {
+                    return getContentResolver().query(uri, null, null, null, null);
+                }
+
+                return null;
             }
 
             @Override
-            public void deliverResult(String[] data) {
+            public void deliverResult(Cursor data) {
                 Log.d("deliverResult", "launched");
-                weatherDataJson = data;
+                cursorWeatherData = data;
                 mLoadingIndicator.setVisibility(View.INVISIBLE);
                 super.deliverResult(data);
             }
@@ -172,16 +186,14 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoadFinished(Loader<String[]> loader, String[] data) {
-        Log.d("onLoadFinished", "launched");
-        Log.d("arrayLength", String.valueOf(data.length));
+    public void onLoadFinished(Loader<Cursor> loader, Cursor cursorData) {
         // As soon as the loading is complete, hide the loading indicator
         mLoadingIndicator.setVisibility(View.INVISIBLE);
 
-        if(data.length != 0) {
+        if(cursorData != null) {
             showJsonDataView();
             // set weather data to ForecastAdapter data source and display it via RecyclerView
-            mForecastAdapter.setWeatherData(data);
+            mForecastAdapter.swapCursor(cursorData);
         } else {
             // display an error message
             showErrorMessage();
@@ -190,11 +202,11 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onLoaderReset(Loader<String[]> loader) {}
+    public void onLoaderReset(Loader<Cursor> loader) {}
 
     // get the user's preferred location and temperature units to execute AsyncTask for
     // requesting data from the server, return response as a json string
-    private String[] loadWeatherData() {
+    private ContentValues[] loadWeatherData() {
 
         // location from the preferences
         String locationParameter = SunshinePreferences.getPreferredWeatherLocation(this);
@@ -212,7 +224,7 @@ public class MainActivity extends AppCompatActivity implements
         try {
             // get response from the server in json format
             String jsonString = NetworkUtils.getResponseFromHttpUrl(url);
-            return OpenWeatherJsonUtils.getSimpleWeatherStringsFromJson(this, jsonString);
+            return OpenWeatherJsonUtils.getFullWeatherDataFromJson(this, jsonString);
         } catch(IOException e) {
             e.printStackTrace();
         } catch (JSONException e) {

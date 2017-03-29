@@ -1,16 +1,13 @@
 package com.example.android.sunshine;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.data.WeatherContract.WeatherEntry;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
@@ -54,16 +51,10 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         return 0;
     }
 
-    /*
-    void setWeatherData(String[] weatherData) {
-        mWeatherData = weatherData;
-        notifyDataSetChanged();
-    }
-    */
-
+    // take in a new Cursor and update the value of the old Cursor
     void swapCursor(Cursor newCursor) {
         mCursor = newCursor;
-        //After the new Cursor is set, call notifyDataSetChanged
+        // After the new Cursor is set, call notifyDataSetChanged
         notifyDataSetChanged();
     }
 
@@ -77,35 +68,52 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
         }
 
         void bind(int listIndex) {
-            mCursor.moveToPosition(listIndex);
 
-            // extract all the relevant data from the Cursor and display it
-            int dateColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_DATE);
-            long dateInMillis = mCursor.getLong(dateColIndex);
-            String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+            // extract relevant data from the cursor and display it
+            String weatherSummary = displayValuesFromCursor(listIndex);
 
-            int descColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_WEATHER_ID);
-            int weatherId = mCursor.getInt(descColIndex);
-            String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
-
-            int minTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP);
-            double lowInCelsius = mCursor.getDouble(minTempColIndex);
-
-            int maxTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP);
-            double highInCelsius = mCursor.getDouble(maxTempColIndex);
-
-            String highAndLowTemperature = SunshineWeatherUtils.formatHighLows(mContext, highInCelsius, lowInCelsius);
-
-            String weatherSummary = dateString + " - " + description + " - " + highAndLowTemperature;
-
-            mWeatherTextView.setText(weatherSummary);
+            if(weatherSummary != null) {
+                mWeatherTextView.setText(weatherSummary);
+            }
         }
 
         @Override
         public void onClick(View v) {
+            // query cursor for the single item
             int clickedPosition = getAdapterPosition();
-            String dayForecast = mWeatherData[clickedPosition];
-            mOnClickListener.onListItemClick(dayForecast);
+
+            // extract relevant data from the cursor and display it
+            String weatherSummary = displayValuesFromCursor(clickedPosition);
+
+            if(weatherSummary != null) {
+                mOnClickListener.onListItemClick(weatherSummary);
+            }
+        }
+
+        private String displayValuesFromCursor(int cursorPosition) {
+
+            if(mCursor.moveToPosition(cursorPosition)) {
+                // extract all the relevant data from the Cursor and display it
+                int dateColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_DATE);
+                long dateInMillis = mCursor.getLong(dateColIndex);
+                String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+
+                int descColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_WEATHER_ID);
+                int weatherId = mCursor.getInt(descColIndex);
+                String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
+
+                int minTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP);
+                double lowInCelsius = mCursor.getDouble(minTempColIndex);
+
+                int maxTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP);
+                double highInCelsius = mCursor.getDouble(maxTempColIndex);
+
+                String highAndLowTemperature = SunshineWeatherUtils.formatHighLows(mContext, highInCelsius, lowInCelsius);
+
+                return dateString + " - " + description + " - " + highAndLowTemperature;
+            }
+
+            return null;
         }
     }
 }
