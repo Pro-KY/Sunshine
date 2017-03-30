@@ -8,7 +8,6 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager;
-import android.support.v4.content.AsyncTaskLoader;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
@@ -21,7 +20,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 
 import com.example.android.sunshine.data.SunshinePreferences;
@@ -33,8 +31,6 @@ import org.json.JSONException;
 
 import java.io.IOException;
 import java.net.URL;
-
-import static android.R.attr.data;
 
 
 public class MainActivity extends AppCompatActivity implements
@@ -142,10 +138,12 @@ public class MainActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onListItemClick(String viewHolderData) {
+    public void onListItemClick(long clickedItemDate) {
         Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("dayForecast", viewHolderData);
-        startActivity(intent);
+        // pass the uri for the clicked date
+
+        Uri uriForDateClicked = WeatherContract.WeatherEntry.buildWeatherUriWithDate(clickedItemDate);
+        startActivity(intent.setData(uriForDateClicked));
     }
 
     @Override
@@ -157,7 +155,7 @@ public class MainActivity extends AppCompatActivity implements
 
                 //ContentValues[] weatherData = loadWeatherData();
 
-                Uri uri = WeatherContract.WeatherEntry.CONTENT_URI_DIR;
+                Uri uri = WeatherContract.WeatherEntry.CONTENT_URI;
 
                 //int rowsInserted = getContentResolver().bulkInsert(uri, weatherData);
                 //Log.d("rowsInserted", String.valueOf(rowsInserted));

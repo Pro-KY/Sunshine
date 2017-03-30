@@ -12,6 +12,7 @@ import com.example.android.sunshine.data.WeatherContract.WeatherEntry;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
 
+import static android.os.Build.VERSION_CODES.M;
 
 
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder>{
@@ -25,7 +26,7 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     }
 
     public interface ListItemClickListener {
-        void onListItemClick(String viewHolderData);
+        void onListItemClick(long forecastDate);
     }
 
     @Override
@@ -79,14 +80,12 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
             // RETRIEVE TEXT FROM THE LIST ITEM TEXTVIEW
 
             // query cursor for the single item
-            //int clickedPosition = getAdapterPosition();
+            int clickedPosition = getAdapterPosition();
 
-            String weatherForDay = mWeatherTextView.getText().toString();
-            // extract relevant data from the cursor and display it
-            //String weatherSummary = displayValuesFromCursor(clickedPosition);
-
-            mOnClickListener.onListItemClick(weatherForDay);
-
+            if(mCursor.moveToPosition(clickedPosition)) {
+                long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
+                mOnClickListener.onListItemClick(dateInMillis);
+            }
         }
 
         private String displayValuesFromCursor(int cursorPosition) {
