@@ -36,7 +36,7 @@ public final class OpenWeatherJsonUtils {
      * describing the weather over various days from the forecast.
      * <p/>
      * Later on, we'll be parsing the JSON into structured data within the
-     * getFullWeatherDataFromJson function, leveraging the data we have stored in the JSON. For
+     * getWeatherContentValuesFromJson function, leveraging the data we have stored in the JSON. For
      * now, we just convert the JSON into human-readable strings.
      *
      * @param forecastJsonStr JSON response from server
@@ -136,7 +136,7 @@ public final class OpenWeatherJsonUtils {
      *
      * @return An array of ContentValues parsed from the JSON.
      */
-    public static ContentValues[] getFullWeatherDataFromJson(Context context, String forecastJsonStr)
+    public static ContentValues[] getWeatherContentValuesFromJson(Context context, String forecastJsonStr)
             throws JSONException {
         /* Weather information. Each day's forecast info is an element of the "list" array */
         final String OWM_LIST = "list";

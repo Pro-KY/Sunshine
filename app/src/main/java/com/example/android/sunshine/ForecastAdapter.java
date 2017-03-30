@@ -12,6 +12,8 @@ import com.example.android.sunshine.data.WeatherContract.WeatherEntry;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
 
+
+
 public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.ForecastAdapterViewHolder>{
     private Cursor mCursor;
     private Context mContext;
@@ -40,7 +42,12 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     // takes all of the data from a cursor and uses that to populate the views
     @Override
     public void onBindViewHolder(ForecastAdapterViewHolder holder, int position) {
-        holder.bind(position);
+        // extract relevant data from the cursor and display it
+        String weatherSummary = holder.displayValuesFromCursor(position);
+
+        if(weatherSummary != null) {
+            holder.mWeatherTextView.setText(weatherSummary);
+        }
     }
 
     @Override
@@ -67,46 +74,33 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
             itemView.setOnClickListener(this);
         }
 
-        void bind(int listIndex) {
-
-            // extract relevant data from the cursor and display it
-            String weatherSummary = displayValuesFromCursor(listIndex);
-
-            if(weatherSummary != null) {
-                mWeatherTextView.setText(weatherSummary);
-            }
-        }
-
         @Override
         public void onClick(View v) {
+            // RETRIEVE TEXT FROM THE LIST ITEM TEXTVIEW
+
             // query cursor for the single item
-            int clickedPosition = getAdapterPosition();
+            //int clickedPosition = getAdapterPosition();
 
+            String weatherForDay = mWeatherTextView.getText().toString();
             // extract relevant data from the cursor and display it
-            String weatherSummary = displayValuesFromCursor(clickedPosition);
+            //String weatherSummary = displayValuesFromCursor(clickedPosition);
 
-            if(weatherSummary != null) {
-                mOnClickListener.onListItemClick(weatherSummary);
-            }
+            mOnClickListener.onListItemClick(weatherForDay);
+
         }
 
         private String displayValuesFromCursor(int cursorPosition) {
 
             if(mCursor.moveToPosition(cursorPosition)) {
                 // extract all the relevant data from the Cursor and display it
-                int dateColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_DATE);
-                long dateInMillis = mCursor.getLong(dateColIndex);
+                long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
                 String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
 
-                int descColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_WEATHER_ID);
-                int weatherId = mCursor.getInt(descColIndex);
+                int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
                 String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
 
-                int minTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MIN_TEMP);
-                double lowInCelsius = mCursor.getDouble(minTempColIndex);
-
-                int maxTempColIndex = mCursor.getColumnIndex(WeatherEntry.COLUMN_MAX_TEMP);
-                double highInCelsius = mCursor.getDouble(maxTempColIndex);
+                double lowInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP);
+                double highInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
 
                 String highAndLowTemperature = SunshineWeatherUtils.formatHighLows(mContext, highInCelsius, lowInCelsius);
 
