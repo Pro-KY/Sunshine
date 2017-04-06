@@ -131,12 +131,11 @@ public final class OpenWeatherJsonUtils {
     /**
      * Parse the JSON and convert it into ContentValues that can be inserted into our database.
      *
-     * @param context         An application context, such as a service or activity context.
      * @param forecastJsonStr The JSON to parse into ContentValues.
      *
      * @return An array of ContentValues parsed from the JSON.
      */
-    public static ContentValues[] getWeatherContentValuesFromJson(Context context, String forecastJsonStr)
+    public static ContentValues[] getWeatherContentValuesFromJson(String forecastJsonStr)
             throws JSONException {
         /* Weather information. Each day's forecast info is an element of the "list" array */
         final String OWM_LIST = "list";

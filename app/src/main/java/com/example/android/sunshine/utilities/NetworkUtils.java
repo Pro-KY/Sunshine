@@ -24,6 +24,7 @@ import android.util.Log;
 import com.example.android.sunshine.BuildConfig;
 import com.example.android.sunshine.MainActivity;
 import com.example.android.sunshine.R;
+import com.example.android.sunshine.data.SunshinePreferences;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -64,38 +65,33 @@ public final class NetworkUtils {
 
     // Builds the URL used to talk to the weather server using a location. This location is based
     // on the query capabilities of the weather provider that we are using.
-    public static URL buildUrl(String locationParam, String unitsParam) {
+    public static URL buildUrl(Context context) {
 
-        Uri builtUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
-                .appendQueryParameter(LOCATION_ID , locationParam)
+        // location from the preferences
+        String locationParameter = SunshinePreferences.getPreferredWeatherLocation(context);
+        Log.d("locationParameter", locationParameter);
+
+        // temperature units from the preferences
+        String unitsParameter = SunshinePreferences.getPreferredTemperatureUnits(context);
+        Log.d("unitsParameter", unitsParameter);
+
+        Uri weatherQueryUri = Uri.parse(FORECAST_BASE_URL).buildUpon()
+                .appendQueryParameter(LOCATION_ID , locationParameter)
                 .appendQueryParameter(FORMAT_PARAM , format)
-                .appendQueryParameter(UNITS_PARAM , unitsParam)
+                .appendQueryParameter(UNITS_PARAM , unitsParameter)
                 .appendQueryParameter(DAYS_PARAM , String.valueOf(numDays))
                 .appendQueryParameter(APPID_PARAM , BuildConfig.OPEN_WEATHER_MAP_API_KEY)
                 .build();
         URL url = null;
 
         try{
-            url = new URL(builtUri.toString());
-            Log.d("url", builtUri.toString());
+            url = new URL(weatherQueryUri.toString());
+            Log.d("url", weatherQueryUri.toString());
         } catch(MalformedURLException e) {
             e.printStackTrace();
         }
 
         return url;
-    }
-
-    /**
-     * Builds the URL used to talk to the weather server using latitude and longitude of a
-     * location.
-     *
-     * @param lat The latitude of the location
-     * @param lon The longitude of the location
-     * @return The Url to use to query the weather server.
-     */
-    public static URL buildUrl(Double lat, Double lon) {
-        /** This will be implemented in a future lesson **/
-        return null;
     }
 
     /**

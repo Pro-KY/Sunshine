@@ -24,6 +24,7 @@ import android.widget.ProgressBar;
 
 import com.example.android.sunshine.data.SunshinePreferences;
 import com.example.android.sunshine.data.WeatherContract;
+import com.example.android.sunshine.sync.SunshineSyncUtils;
 import com.example.android.sunshine.utilities.NetworkUtils;
 import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
 
@@ -101,6 +102,8 @@ public class MainActivity extends AppCompatActivity implements
         // SharedPreference has changed
         PreferenceManager.getDefaultSharedPreferences(this)
                 .registerOnSharedPreferenceChangeListener(this);
+
+        SunshineSyncUtils.startImmediateSync(this);
     }
 
     @Override
@@ -153,8 +156,6 @@ public class MainActivity extends AppCompatActivity implements
         switch (loaderId) {
             case FORECAST_LOADER_ID:
 
-                //ContentValues[] weatherData = loadWeatherData();
-
                 Uri uri = WeatherContract.WeatherEntry.CONTENT_URI;
 
                 //int rowsInserted = getContentResolver().bulkInsert(uri, weatherData);
@@ -191,36 +192,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onLoaderReset(Loader<Cursor> loader) {
         //  clear the Adapter that is displaying the data.
         mForecastAdapter.swapCursor(null);
-    }
-
-    // get the user's preferred location and temperature units to execute AsyncTask for
-    // requesting data from the server, return response as a json string
-    private ContentValues[] loadWeatherData() {
-
-        // location from the preferences
-        String locationParameter = SunshinePreferences.getPreferredWeatherLocation(this);
-        Log.d("locationParameter", locationParameter);
-
-        // temperature units from the preferences
-        String unitsParameter = SunshinePreferences.getPreferredTemperatureUnits(this);
-        Log.d("unitsParameter", unitsParameter);
-
-        // build url for the forecast request
-        URL url = NetworkUtils.buildUrl(locationParameter, unitsParameter);
-
-        Log.d("url", url.toString());
-
-        try {
-            // get response from the server in json format
-            String jsonString = NetworkUtils.getResponseFromHttpUrl(url);
-            return OpenWeatherJsonUtils.getWeatherContentValuesFromJson(this, jsonString);
-        } catch(IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-        return null;
     }
 
     // show the data and hide the error
