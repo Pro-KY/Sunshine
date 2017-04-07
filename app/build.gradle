@@ -36,4 +36,5 @@ dependencies {
     androidTestCompile 'com.android.support.test:rules:0.5'
     compile 'com.android.support:recyclerview-v7:25.2.0'
     compile 'com.android.support:preference-v7:25.2.0'
+    compile 'com.firebase:firebase-jobdispatcher:0.5.2'
 }
