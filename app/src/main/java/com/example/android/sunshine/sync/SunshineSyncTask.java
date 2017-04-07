@@ -10,6 +10,7 @@ import com.example.android.sunshine.utilities.OpenWeatherJsonUtils;
 
 import java.net.URL;
 
+// class that represents the “task” we’re going to perform.
 public class SunshineSyncTask {
 
     // send http request, parse json data and insert it into ContentProvider
