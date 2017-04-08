@@ -1,12 +1,21 @@
 package com.example.android.sunshine;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
+import android.util.Log;
+
+import com.example.android.sunshine.data.SunshinePreferences;
+import com.example.android.sunshine.data.WeatherContract;
+import com.example.android.sunshine.sync.SunshineSyncUtils;
+
+import static android.R.attr.value;
 
 public class SettingsFragment extends PreferenceFragmentCompat implements
         SharedPreferences.OnSharedPreferenceChangeListener{
@@ -40,8 +49,10 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
 
         for(int i=0; i<count; i++) {
             Preference p = prefScreen.getPreference(i);
-            String value = sharedPreferences.getString(p.getKey(), "");
-            setPreferenceSummary(p, value);
+            if(!(p instanceof CheckBoxPreference)) {
+                String value = sharedPreferences.getString(p.getKey(), "");
+                setPreferenceSummary(p, value);
+            }
         }
     }
 
@@ -64,9 +75,23 @@ public class SettingsFragment extends PreferenceFragmentCompat implements
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Activity activity = getActivity();
+
+        if (key.equals(getString(R.string.pref_location_key))) {
+            // we've changed the location
+            // Wipe out any potential PlacePicker latlng values so that we can use this text entry.
+            SunshinePreferences.resetLocationCoordinates(activity);
+            SunshineSyncUtils.startImmediateSync(activity);
+        } else if (key.equals(getString(R.string.pref_units_key))) {
+            // units have changed. update lists of weather entries accordingly
+            activity.getContentResolver().notifyChange(WeatherContract.WeatherEntry.CONTENT_URI, null);
+        }
         Preference preference = findPreference(key);
-        setPreferenceSummary(preference, sharedPreferences.getString(key, ""));
+        if (null != preference) {
+            if (!(preference instanceof CheckBoxPreference)) {
+                setPreferenceSummary(preference, sharedPreferences.getString(key, ""));
+                Log.d("pref_value", sharedPreferences.getString(key, ""));
+            }
+        }
     }
-
-
 }

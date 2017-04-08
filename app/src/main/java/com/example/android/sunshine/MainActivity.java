@@ -36,8 +36,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity implements
         ForecastAdapter.ListItemClickListener,
-        LoaderManager.LoaderCallbacks<Cursor>,
-        SharedPreferences.OnSharedPreferenceChangeListener {
+        LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private Context mContext = MainActivity.this;
@@ -59,23 +58,9 @@ public class MainActivity extends AppCompatActivity implements
     public static final int INDEX_WEATHER_MIN_TEMP = 2;
     public static final int INDEX_WEATHER_CONDITION_ID = 3;
 
-    // flag for preference updates, indicates whether preferences have been updated
-    private static boolean PREFERENCES_HAVE_BEEN_UPDATED = false;
-
     // loader ID
     private final static int FORECAST_LOADER_ID = 1;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        // check whether preferences have been updated
-        if(PREFERENCES_HAVE_BEEN_UPDATED) {
-            Log.d(LOG_TAG, "onStart: preferences were updated");
-            getSupportLoaderManager().restartLoader(FORECAST_LOADER_ID, null, this);
-            PREFERENCES_HAVE_BEEN_UPDATED = false;
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,21 +83,9 @@ public class MainActivity extends AppCompatActivity implements
         // initialize the loader when activity is created
         getSupportLoaderManager().initLoader(FORECAST_LOADER_ID, null, this);
 
-        // Register MainActivity as an OnPreferenceChangedListener to receive a callback when a
-        // SharedPreference has changed
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .registerOnSharedPreferenceChangeListener(this);
-
         SunshineSyncUtils.startImmediateSync(this);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Unregister MainActivity as an OnPreferenceChangedListener to avoid any memory leaks.
-        PreferenceManager.getDefaultSharedPreferences(this)
-                .unregisterOnSharedPreferenceChangeListener(this);
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -179,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         // As soon as the loading is complete, hide the loading indicator
+        Log.d("onLoadFinished", "launched");
 
         mForecastAdapter.swapCursor(data);
 
@@ -219,12 +193,5 @@ public class MainActivity extends AppCompatActivity implements
             Log.d(LOG_TAG, "Couldn't call " + geoLocation.toString() +
                     ", no receiving apps installed!");
         }
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        // Set this flag to true so that when control returns to MainActivity, it can refresh the
-        // data.
-        PREFERENCES_HAVE_BEEN_UPDATED = true;
     }
 }
