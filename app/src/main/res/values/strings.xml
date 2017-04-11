@@ -70,7 +70,6 @@
         <xliff:g id="humidity">%1.0f</xliff:g> %%
     </string>
 
-
     <!-- Weather Conditions (From OpenWeatherMap) -->
     <string name="condition_2xx">Storm</string>
     <string name="condition_3xx">Drizzle</string>
@@ -131,11 +130,19 @@
 
     <string name="condition_unknown">Unknown (<xliff:g id="conditionId">%1$d</xliff:g>)</string>
 
-
-    <!-- - - - - - - - - - - -->
-    <!-- Used by NetworkUtils-->
-    <!-- - - - - - - - - - - -->
-    <!--NONE-->
+    <!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+      - Used for Accessibility purposes (Accessibility == a11y)                            -
+      -                                                                                    -
+      - Fun Fact: Accessibility is abbreviated a11y because accessibility starts with 'a', -
+      - followed by 11 letters, and then a 'y'. It is pronounced alley, like an alley cat. -
+      - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+    <string name="a11y_forecast">Forecast: <xliff:g id="condition">%1$s</xliff:g></string>
+    <string name="a11y_forecast_icon">Forecast icon: <xliff:g id="condition">%1$s</xliff:g></string>
+    <string name="a11y_high_temp">High: <xliff:g id="high">%1$s</xliff:g></string>
+    <string name="a11y_low_temp">Low: <xliff:g id="low">%1$s</xliff:g></string>
+    <string name="a11y_humidity">Humidity: <xliff:g id="humidity">%1$s</xliff:g></string>
+    <string name="a11y_pressure"> Barometric Pressure: <xliff:g id="pressure"> %1$s </xliff:g> </string>
+    <string name="a11y_wind">Wind speed and direction: <xliff:g id="wind">%1$s</xliff:g></string>
 
     <!-- - - - - - - - - - - - - - - -->
     <!-- Used by OpenWeatherJsonUtils-->
@@ -189,7 +196,6 @@
     <!-- Key name for temperature unit preference in SharedPreferences -->
     <string name="pref_units_key" translatable="false"> units </string>
     <!-- - - - - - - - - - - - - - - -->
-
 
     <!-- Used by NotificationUtils -->
 

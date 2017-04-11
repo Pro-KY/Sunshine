@@ -6,11 +6,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.android.sunshine.data.WeatherContract.WeatherEntry;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
+
+import java.util.Set;
 
 import static android.os.Build.VERSION_CODES.M;
 
@@ -42,13 +45,44 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
 
     // takes all of the data from a cursor and uses that to populate the views
     @Override
-    public void onBindViewHolder(ForecastAdapterViewHolder holder, int position) {
+    public void onBindViewHolder(ForecastAdapterViewHolder forecastAdapterViewHolder, int position) {
         // extract relevant data from the cursor and display it
-        String weatherSummary = holder.displayValuesFromCursor(position);
+        mCursor.moveToPosition(position);
 
-        if(weatherSummary != null) {
-            holder.mWeatherTextView.setText(weatherSummary);
-        }
+        // get IMAGE ID
+        int weatherId = mCursor.getInt(MainActivity.INDEX_WEATHER_CONDITION_ID);
+        int weatherImageId = SunshineWeatherUtils
+                .getSmallArtResourceIdForWeatherCondition(weatherId);
+        forecastAdapterViewHolder.iconView.setImageResource(weatherImageId);
+
+        // read DATE from the cursor and
+        long dateInMillis = mCursor.getLong(MainActivity.INDEX_WEATHER_DATE);
+        String dateString = SunshineDateUtils.getFriendlyDateString(mContext, dateInMillis, false);
+        // display date string
+        forecastAdapterViewHolder.dateView.setText(dateString);
+
+        // weather DESCRIPTION
+        String description = SunshineWeatherUtils.getStringForWeatherCondition(mContext, weatherId);
+        // Create the accessibility (a11y) String from the weather description
+        String descriptionA11y = mContext.getString(R.string.a11y_forecast, description);
+        forecastAdapterViewHolder.descriptionView.setText(description);
+        forecastAdapterViewHolder.descriptionView.setContentDescription(descriptionA11y);
+
+        // HIGH temperature
+        double highInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MAX_TEMP);
+        String highString = SunshineWeatherUtils.formatTemperature(mContext, highInCelsius);
+        String highA11y = mContext.getString(R.string.a11y_high_temp, highString);
+        // Set the text and content description (for accessibility purposes)
+        forecastAdapterViewHolder.highTempView.setText(highString);
+        forecastAdapterViewHolder.highTempView.setContentDescription(highA11y);
+
+        // LOW temperature
+        double lowInCelsius = mCursor.getDouble(MainActivity.INDEX_WEATHER_MIN_TEMP);
+        String lowString = SunshineWeatherUtils.formatTemperature(mContext, lowInCelsius);
+        String lowA11y = mContext.getString(R.string.a11y_low_temp, lowString);
+        // Set the text and content description (for accessibility purposes)
+        forecastAdapterViewHolder.lowTempView.setText(lowString);
+        forecastAdapterViewHolder.lowTempView.setContentDescription(lowA11y);
     }
 
     @Override
@@ -67,17 +101,25 @@ public class ForecastAdapter extends RecyclerView.Adapter<ForecastAdapter.Foreca
     }
 
     public class ForecastAdapterViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
-        TextView mWeatherTextView;
+        final TextView dateView;
+        final TextView descriptionView;
+        final TextView highTempView;
+        final TextView lowTempView;
+
+        final ImageView iconView;
 
         ForecastAdapterViewHolder(View itemView) {
             super(itemView);
-            mWeatherTextView = (TextView) itemView.findViewById(R.id.tv_item_forecast);
+            dateView = (TextView) itemView.findViewById(R.id.date);
+            descriptionView = (TextView) itemView.findViewById(R.id.weather_description);
+            highTempView = (TextView) itemView.findViewById(R.id.high_temperature);
+            lowTempView = (TextView) itemView.findViewById(R.id.low_temperature);
+            iconView = (ImageView) itemView.findViewById(R.id.weather_icon);
             itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View v) {
-            // RETRIEVE TEXT FROM THE LIST ITEM TEXTVIEW
 
             // query cursor for the single item
             int clickedPosition = getAdapterPosition();
