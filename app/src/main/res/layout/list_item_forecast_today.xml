@@ -5,7 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@drawable/today_touch_selector">
 
     <android.support.constraint.Guideline
         android:id="@+id/guideline"
@@ -21,8 +22,10 @@
         android:layout_height="wrap_content"
         tools:text="Today, April 03"
         android:textSize="20sp"
+        android:textColor="@color/white"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
+        android:paddingTop="8dp"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/weather_icon"
         app:layout_constraintHorizontal_bias="0.502" />
@@ -45,8 +48,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         tools:text="Rainy"
-        android:textColor="@color/secondary_text"
         android:textSize="20sp"
+        android:textColor="@color/white"
         app:layout_constraintTop_toBottomOf="@+id/weather_icon"
         app:layout_constraintRight_toRightOf="@+id/weather_icon"
         app:layout_constraintLeft_toLeftOf="@+id/weather_icon" />
@@ -58,7 +61,7 @@
         android:layout_height="wrap_content"
         tools:text="19\u00b0"
         android:fontFamily="sans-serif-light"
-        android:textColor="@color/primary_text"
+        android:textColor="@color/white"
         android:textSize="72sp"
         app:layout_constraintLeft_toLeftOf="@+id/guideline"
         app:layout_constraintRight_toRightOf="parent"
@@ -72,8 +75,8 @@
         android:layout_height="wrap_content"
         tools:text="10\u00b0"
         android:textSize="36sp"
+        android:textColor="@color/white"
         android:fontFamily="sans-serif-light"
-        android:textColor="@color/secondary_text"
         app:layout_constraintLeft_toLeftOf="@+id/high_temperature"
         app:layout_constraintRight_toRightOf="@+id/high_temperature"
         app:layout_constraintBaseline_toBaselineOf="@+id/weather_description"

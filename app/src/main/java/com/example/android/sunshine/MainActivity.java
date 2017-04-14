@@ -33,7 +33,6 @@ import org.json.JSONException;
 import java.io.IOException;
 import java.net.URL;
 
-
 public class MainActivity extends AppCompatActivity implements
         ForecastAdapter.ListItemClickListener,
         LoaderManager.LoaderCallbacks<Cursor> {
@@ -66,6 +65,8 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_forecast);
+
+        getSupportActionBar().setElevation(0);
 
         mLoadingIndicator = (ProgressBar) findViewById(R.id.pb_loading_indicator);
 

@@ -5,24 +5,19 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.LoaderManager;
 import android.databinding.DataBindingUtil;
-import com.example.android.sunshine.databinding.DetailActivityBinding;
+import com.example.android.sunshine.databinding.ActivityDetailBinding;
 import android.support.v4.app.ShareCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.example.android.sunshine.data.WeatherContract;
 import com.example.android.sunshine.utilities.SunshineDateUtils;
 import com.example.android.sunshine.utilities.SunshineWeatherUtils;
-
-import static android.R.attr.description;
 
 
 public class DetailActivity extends AppCompatActivity implements
@@ -53,15 +48,15 @@ public class DetailActivity extends AppCompatActivity implements
     public static final int INDEX_WEATHER_WIND_SPEED = 6;
     public static final int INDEX_WEATHER_DEGREES = 7;
 
-    private DetailActivityBinding mDetailBinding;
+    private ActivityDetailBinding mDetailBinding;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.detail_activity);
+        setContentView(R.layout.activity_detail);
 
-        mDetailBinding = DataBindingUtil.setContentView(this, R.layout.detail_activity);
+        mDetailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
         Intent intent = getIntent();
         mUri = intent.getData();
