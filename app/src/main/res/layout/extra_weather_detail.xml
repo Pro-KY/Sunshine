@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
@@ -7,12 +8,12 @@
         android:id="@+id/extra_details"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="16dp"
-        android:paddingEnd="32dp"
-        android:paddingLeft="32dp"
-        android:paddingRight="32dp"
-        android:paddingStart="32dp"
-        android:paddingTop="16dp">
+        android:paddingBottom="@dimen/forecast_detail_vertical_padding"
+        android:paddingEnd="@dimen/forecast_detail_horizontal_padding"
+        android:paddingLeft="@dimen/forecast_detail_horizontal_padding"
+        android:paddingRight="@dimen/forecast_detail_horizontal_padding"
+        android:paddingStart="@dimen/forecast_detail_horizontal_padding"
+        android:paddingTop="@dimen/forecast_detail_vertical_padding">
 
         <!-- This guideline divides the layout into a left and right half and is used for alignment -->
         <android.support.constraint.Guideline
@@ -20,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.5"/>
+            app:layout_constraintGuide_percent="0.5" />
 
         <!-- Humidity label -->
         <TextView
@@ -28,11 +29,13 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:text="@string/humidity_label"
+            android:fontFamily="sans-serif"
             android:textSize="20sp"
+            android:textColor="@color/detail_accent_label"
             app:layout_constraintBottom_toTopOf="@+id/pressure_label"
             app:layout_constraintLeft_toLeftOf="@+id/extra_details"
             app:layout_constraintTop_toTopOf="@+id/extra_details"
-            app:layout_constraintVertical_bias="0.33"/>
+            app:layout_constraintVertical_bias="0.33" />
 
         <!-- Humidity measurement -->
         <TextView
@@ -42,18 +45,21 @@
             app:layout_constraintBottom_toBottomOf="@+id/humidity_label"
             app:layout_constraintLeft_toLeftOf="@+id/horizontal_middle"
             tools:text="38%"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:textColor="@color/white" />
 
         <!-- Pressure label -->
         <TextView
             android:id="@+id/pressure_label"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
+            android:textColor="@color/detail_accent_label"
             android:text="@string/pressure_label"
             android:textSize="20sp"
+            android:fontFamily="sans-serif"
             app:layout_constraintBottom_toBottomOf="@+id/extra_details"
             app:layout_constraintLeft_toLeftOf="@+id/extra_details"
-            app:layout_constraintTop_toTopOf="@+id/extra_details"/>
+            app:layout_constraintTop_toTopOf="@+id/extra_details" />
 
         <!-- Pressure measurement -->
         <TextView
@@ -63,6 +69,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/pressure_label"
             app:layout_constraintLeft_toLeftOf="@+id/horizontal_middle"
             tools:text="995 hPa"
+            android:textColor="@color/white"
             android:textSize="18sp"
             android:layout_marginLeft="-7dp"
             android:layout_marginBottom="1dp" />
@@ -74,10 +81,12 @@
             android:layout_width="wrap_content"
             android:text="@string/wind_label"
             android:textSize="20sp"
+            android:fontFamily="sans-serif"
+            android:textColor="@color/detail_accent_label"
             app:layout_constraintBottom_toBottomOf="@+id/extra_details"
             app:layout_constraintLeft_toLeftOf="@+id/extra_details"
             app:layout_constraintTop_toBottomOf="@+id/pressure_label"
-            app:layout_constraintVertical_bias="0.65999997"/>
+            app:layout_constraintVertical_bias="0.65999997" />
 
         <!-- Wind measurement -->
         <TextView
@@ -87,7 +96,8 @@
             app:layout_constraintBottom_toBottomOf="@+id/wind_label"
             app:layout_constraintLeft_toLeftOf="@+id/horizontal_middle"
             tools:text="4km/h NW"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:textColor="@color/white" />
 
     </android.support.constraint.ConstraintLayout>
 </layout>
